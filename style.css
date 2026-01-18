@@ -23,103 +23,147 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    height: 100vh; /* Changed min-height to height for consistent centering */
     text-align: center;
-    overflow: hidden;
+    overflow: hidden; /* Prevent body scroll */
 }
 
-#app {
-    width: 100%;
-    max-width: 800px;
-    height: 100%;
-    max-height: 90vh;
+/* New: App Container for centralizing content */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    width: 90%; /* Occupy 90% of body width */
+    max-width: 1400px; /* Max width for web environment */
+    height: 90vh; /* Occupy 90% of body height */
+    background-color: var(--surface-color); /* Background for the container itself */
+    border-radius: 30px; /* Consistent rounded corners */
+    overflow: hidden; /* Hide overflow content within the app */
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5); /* Soft shadow for depth */
+}
+
+/* New: App Header */
+.app-header {
+    flex-shrink: 0; /* Prevent header from shrinking */
+    padding: 1.5rem 2rem;
     display: flex;
     align-items: center;
+    justify-content: flex-start; /* Align logo/title to start */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background-color: var(--surface-color); /* Match container background */
+    z-index: 10;
+}
+.app-header .logo {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-color);
+    text-decoration: none;
+    margin-right: auto; /* Push content to the right if any */
+}
+
+
+/* New: App Main area (replaces #app for content rendering) */
+.app-main {
+    flex-grow: 1; /* Take all available vertical space */
+    position: relative; /* For absolute positioned screens inside */
+    display: flex;
     justify-content: center;
-    position: relative;
+    align-items: center;
+    padding: 2rem; /* Padding for overall content */
 }
 
 /* Base screen container */
 .screen {
     width: 100%;
     height: 100%;
-    position: absolute;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: absolute; /* Position screens absolutely within app-main */
+    top: 0;
+    left: 0;
+    display: flex; /* Make screens flex containers */
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem; /* Add some padding so internal content doesn't touch edges */
     transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    background-color: var(--surface-color); /* Ensure screen background is consistent */
+    border-radius: 20px; /* Slightly smaller than container for nested feel */
 }
 
 /* State management */
 .screen.hidden {
     opacity: 0;
-    transform: scale(0.95);
+    transform: scale(0.98); /* Slightly smaller scale for transition */
     pointer-events: none;
+    z-index: -1; /* Send hidden screens to background */
+}
+.screen:not(.hidden) {
+    z-index: 0; /* Bring active screen to front */
 }
 
+
 /* Main Menu Styles */
-.main-screen .glass-panel {
-    width: 90%;
-    height: 70%;
-    background: rgba(22, 33, 62, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 30px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
+.main-screen {
+    gap: 2rem; /* Spacing between title, description, button */
+}
+.main-screen .main-title {
+    font-size: clamp(3rem, 5vw, 4.5rem); /* Responsive font size */
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 15px var(--accent-glow);
+}
+.main-screen .main-description {
+    font-size: clamp(1rem, 1.5vw, 1.4rem);
+    color: var(--secondary-text-color);
+    margin-bottom: 2rem;
+    line-height: 1.5;
 }
 
 .floating-container {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    pointer-events: none; /* Make icons not intercept clicks */
 }
 
 .floating-icon {
     position: absolute;
-    font-size: 2.5rem;
+    font-size: clamp(2.5rem, 5vw, 4rem); /* Responsive icon size */
     text-shadow: 0 0 15px rgba(255,255,255,0.5);
     animation: float 6s ease-in-out infinite;
-    opacity: 0.7;
+    opacity: 0.2; /* More subtle */
+    color: var(--accent-color); /* Use accent color for consistency */
 }
 
 .floating-icon:nth-child(1) { top: 15%; left: 20%; animation-delay: 0s; }
-.floating-icon:nth-child(2) { top: 30%; right: 15%; animation-delay: -1.5s; font-size: 3.5rem;}
-.floating-icon:nth-child(3) { bottom: 25%; left: 25%; animation-delay: -3s; font-size: 2rem; }
+.floating-icon:nth-child(2) { top: 30%; right: 15%; animation-delay: -1.5s; font-size: clamp(3.5rem, 6vw, 5rem);}
+.floating-icon:nth-child(3) { bottom: 25%; left: 25%; animation-delay: -3s; font-size: clamp(2rem, 4vw, 3.5rem); }
 .floating-icon:nth-child(4) { bottom: 40%; right: 30%; animation-delay: -4.5s; }
 
 @keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-    100% { transform: translateY(0px); }
-}
-
-.main-title {
-    font-size: 3rem;
-    font-weight: 800;
-    color: #fff;
-    margin-bottom: 1rem;
-    position: relative; /* To appear above floating icons */
+    0% { transform: translateY(0px) translateX(0px) scale(1); }
+    25% { transform: translateY(-10px) translateX(10px) scale(1.02); }
+    50% { transform: translateY(-20px) translateX(0px) scale(1.05); }
+    75% { transform: translateY(-10px) translateX(-10px) scale(1.02); }
+    100% { transform: translateY(0px) translateX(0px) scale(1); }
 }
 
 .cta-button {
     font-family: 'Pretendard', sans-serif;
-    font-size: 1.5rem;
+    font-size: clamp(1.5rem, 2.5vw, 2rem); /* Responsive font size */
     font-weight: 700;
     color: #fff;
     background-color: var(--accent-color);
     border: none;
     border-radius: 15px;
-    padding: 20px 50px;
+    padding: 20px 60px; /* Larger padding for bigger button */
     cursor: pointer;
     transition: all 0.2s ease-out;
     position: relative;
     box-shadow: 0 0 25px var(--accent-glow);
+    z-index: 1; /* Ensure button is above floating icons */
 }
 .cta-button:hover {
     transform: scale(1.05);
@@ -127,16 +171,24 @@ body {
 }
 
 /* Category Selection Styles */
+.category-screen h2 {
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    margin-bottom: 2.5rem; /* Increased margin */
+    color: var(--text-color);
+    font-weight: 700;
+}
+
 .category-screen .button-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Responsive 3-4 column grid */
+    gap: 30px; /* Increased gap */
     width: 100%;
-    max-width: 500px;
+    max-width: 1000px; /* Wider max-width for the grid */
+    margin-bottom: 3rem; /* Space before back button */
 }
 
 .category-button {
-    background: var(--surface-color);
+    background: rgba(22, 33, 62, 0.7); /* Slightly darker for card effect */
     border: 2px solid transparent;
     border-radius: 20px;
     aspect-ratio: 1 / 1;
@@ -146,31 +198,34 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 4rem;
+    font-size: clamp(3rem, 5vw, 4.5rem); /* Responsive icon size */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 }
 
 .category-button span {
-    font-size: 1.2rem;
+    font-size: clamp(1.1rem, 1.5vw, 1.3rem); /* Responsive text size */
     font-weight: 600;
-    margin-top: 10px;
+    margin-top: 15px; /* Increased margin */
+    color: var(--text-color);
 }
 
 .category-button:hover {
-    transform: scale(1.08);
+    transform: translateY(-8px) scale(1.05); /* More pronounced hover */
     border-color: var(--accent-color);
-    box-shadow: 0 0 20px var(--accent-glow);
+    box-shadow: 0 0 25px var(--accent-glow);
 }
 
 .back-button {
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 500;
     color: var(--secondary-text-color);
     background: none;
     border: none;
     cursor: pointer;
-    margin-top: 40px;
     transition: color 0.2s;
+    padding: 10px 20px;
 }
 .back-button:hover {
     color: var(--text-color);
+    text-decoration: underline;
 }

@@ -27,32 +27,34 @@ class App {
     setupInitialUI() {
         this.appElement.innerHTML = `
             <div class="screen main-screen">
-                <div class="glass-panel">
-                    <div class="floating-container">
-                        <div class="floating-icon">😋</div>
-                        <div class="floating-icon">🔥</div>
-                        <div class="floating-icon">😈</div>
-                        <div class="floating-icon">🤪</div>
-                    </div>
-                    <h1 class="main-title">너의 선택은?</h1>
-                    <button class="cta-button">🎲 바로 시작</button>
+                <div class="floating-container">
+                    <div class="floating-icon">😋</div>
+                    <div class="floating-icon">🔥</div>
+                    <div class="floating-icon">😈</div>
+                    <div class="floating-icon">🤪</div>
                 </div>
+                <h1 class="main-title">밸런스 게임</h1>
+                <p class="main-description">친구, 연인, 가족과 함께 즐기는 최고의 선택 게임!</p>
+                <button class="cta-button">게임 시작하기</button>
             </div>
             <div class="screen category-screen hidden">
-                 <h2 class="card-title" style="margin-bottom: 30px; font-size: 2rem;">어떤 맛으로 시작할까요?</h2>
+                <h2>어떤 카테고리로 플레이할까요?</h2>
                 <div class="button-grid">
                     <button class="category-button" data-category="light">😋<span>가벼운 맛</span></button>
-                    <button class="category-button" data-category="spicy">🔥<span>논쟁 유발</span></button>
-                    <button class="category-button" data-category="danger">😈<span>위험한 맛</span></button>
+                    <button class="category-button" data-category="spicy">🔥<span>매콤한 맛</span></button>
+                    <button class="category-button" data-category="danger">😈<span>아찔한 맛</span></button>
                     <button class="category-button" data-category="random">🤪<span>아무거나!</span></button>
                 </div>
                 <button class="back-button">뒤로가기</button>
             </div>
         `;
+        // appElement는 이제 main 태그이므로 그 안에서 화면 요소를 찾습니다.
         this.mainScreen = this.appElement.querySelector('.main-screen');
         this.categoryScreen = this.appElement.querySelector('.category-screen');
+        
         this.gameContainer = document.createElement('div');
         this.gameContainer.className = 'screen game-screen hidden';
+        this.appElement.appendChild(this.gameContainer); // gameContainer를 appElement (main)에 미리 추가
     }
 
     addEventListeners() {
