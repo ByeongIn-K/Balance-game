@@ -1,4 +1,5 @@
 import { questionService } from './data.js';
+import { t, setLanguage, getLanguage } from './locales/i18n.js';
 import './components/GameScreen.js';
 
 class App {
@@ -11,7 +12,7 @@ class App {
         }
         
         this.bindMethods();
-        this.setupInitialUI();
+        this.renderInitialUI(); // Changed from setupInitialUI
         this.addEventListeners();
         
         console.log('App initialized. Welcome to the NEON DIVE Balance Game!');
@@ -22,52 +23,97 @@ class App {
         this.showMainScreen = this.showMainScreen.bind(this);
         this.showCategoryScreen = this.showCategoryScreen.bind(this);
         this.route = this.route.bind(this);
+        this.handleLanguageChange = this.handleLanguageChange.bind(this);
+        this.render = this.render.bind(this);
     }
-
-    setupInitialUI() {
+    
+    renderInitialUI() {
         this.appElement.innerHTML = `
-            <div class="screen main-screen">
-                <div class="floating-container">
-                    <div class="floating-icon">😋</div>
-                    <div class="floating-icon">🔥</div>
-                    <div class="floating-icon">😈</div>
-                    <div class="floating-icon">🤪</div>
-                </div>
-                <h1 class="main-title">밸런스 게임</h1>
-                <p class="main-description">친구, 연인, 가족과 함께 즐기는 최고의 선택 게임!</p>
-                <button class="cta-button">게임 시작하기</button>
-            </div>
-            <div class="screen category-screen hidden">
-                <h2>어떤 카테고리로 플레이할까요?</h2>
-                <div class="button-grid">
-                    <button class="category-button" data-category="light">😋<span>가벼운 맛</span></button>
-                    <button class="category-button" data-category="spicy">🔥<span>매콤한 맛</span></button>
-                    <button class="category-button" data-category="danger">😈<span>아찔한 맛</span></button>
-                    <button class="category-button" data-category="random">🤪<span>아무거나!</span></button>
-                </div>
-                <button class="back-button">뒤로가기</button>
-            </div>
+            <div class="screen main-screen"></div>
+            <div class="screen category-screen hidden"></div>
         `;
-        // appElement는 이제 main 태그이므로 그 안에서 화면 요소를 찾습니다.
+        
         this.mainScreen = this.appElement.querySelector('.main-screen');
         this.categoryScreen = this.appElement.querySelector('.category-screen');
         
         this.gameContainer = document.createElement('div');
         this.gameContainer.className = 'screen game-screen hidden';
-        this.appElement.appendChild(this.gameContainer); // gameContainer를 appElement (main)에 미리 추가
+        this.appElement.appendChild(this.gameContainer);
+
+        this.render(); // Initial render with the correct language
     }
+    
+    render() {
+        // Re-render all text content
+        this.mainScreen.innerHTML = `
+            <div class="floating-container">
+                <div class="floating-icon">😋</div>
+                <div class="floating-icon">🔥</div>
+                <div class="floating-icon">😈</div>
+                <div class="floating-icon">🤪</div>
+            </div>
+            <h1 class="main-title">${t('main-title')}</h1>
+            <p class="main-description">${t('main-description')}</p>
+            <button class="cta-button">${t('start-game')}</button>
+        `;
+        
+        this.categoryScreen.innerHTML = `
+            <h2>${t('category-title')}</h2>
+            <div class="button-grid">
+                <button class="category-button" data-category="light">😋<span>${t('category-light')}</span></button>
+                <button class="category-button" data-category="spicy">🔥<span>${t('category-spicy')}</span></button>
+                <button class="category-button" data-category="danger">😈<span>${t('category-danger')}</span></button>
+                <button class="category-button" data-category="random">🤪<span>${t('category-random')}</span></button>
+            </div>
+            <button class="back-button">${t('back')}</button>
+        `;
+
+        // Re-add event listeners to the newly created elements
+        this.addEventListenersForRenderedContent();
+    }
+
 
     addEventListeners() {
         window.addEventListener('popstate', this.route);
+        document.querySelectorAll('.language-switcher button').forEach(button => {
+            button.addEventListener('click', this.handleLanguageChange);
+        });
+        this.addEventListenersForRenderedContent();
+    }
+
+    addEventListenersForRenderedContent() {
+        const ctaButton = this.appElement.querySelector('.cta-button');
+        if (ctaButton) {
+            ctaButton.addEventListener('click', this.showCategoryScreen);
+        }
+
+        const backButton = this.appElement.querySelector('.back-button');
+        if (backButton) {
+            backButton.addEventListener('click', this.showMainScreen);
+        }
         
-        this.appElement.querySelector('.cta-button').addEventListener('click', this.showCategoryScreen);
-        this.appElement.querySelector('.back-button').addEventListener('click', this.showMainScreen);
-        
+        this.appElement.querySelectorAll('.category-button').forEach(button => {
+            // Prevent duplicate listeners
+            button.replaceWith(button.cloneNode(true));
+        });
+
         this.appElement.querySelectorAll('.category-button').forEach(button => {
             button.addEventListener('click', (e) => {
                 this.handleCategoryClick(e.currentTarget.dataset.category);
             });
         });
+    }
+
+    handleLanguageChange(e) {
+        const newLang = e.target.dataset.lang;
+        setLanguage(newLang);
+        this.render(); // Re-render the UI with the new language
+        
+        // If a game is in progress, we need to re-render it as well
+        const gameScreen = this.gameContainer.querySelector('game-screen');
+        if (gameScreen) {
+            gameScreen.render();
+        }
     }
 
     showMainScreen() {

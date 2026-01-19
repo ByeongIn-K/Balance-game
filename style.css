@@ -47,17 +47,17 @@ body {
     padding: 1.5rem 2rem;
     display: flex;
     align-items: center;
-    justify-content: flex-start; /* Align logo/title to start */
+    justify-content: space-between; /* Align logo/title to start and language switcher to end */
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     background-color: var(--surface-color); /* Match container background */
     z-index: 10;
+    position: relative;
 }
 .app-header .logo {
     font-size: 1.8rem;
     font-weight: 800;
     color: var(--text-color);
     text-decoration: none;
-    margin-right: auto; /* Push content to the right if any */
 }
 
 
@@ -228,4 +228,40 @@ body {
 .back-button:hover {
     color: var(--text-color);
     text-decoration: underline;
+}
+
+/* Language Switcher */
+.language-switcher {
+    position: relative; /* Changed from absolute */
+    top: auto; /* Changed from 1.5rem */
+    right: auto; /* Changed from 2rem */
+    display: flex;
+    gap: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 0.5rem;
+    border-radius: 10px;
+    z-index: 11; /* Ensure it's above other header elements */
+}
+
+.language-switcher button {
+    font-family: 'Pretendard', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--secondary-text-color);
+    background: none;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: color 0.2s, background-color 0.2s;
+    border-radius: 7px;
+}
+
+.language-switcher button.active {
+    color: var(--text-color);
+    background-color: var(--accent-color);
+}
+
+.language-switcher button:not(.active):hover {
+    color: var(--text-color);
+    background-color: rgba(255, 255, 255, 0.1);
 }

@@ -1,22 +1,28 @@
+import { t, getTranslated } from '../locales/i18n.js';
+
 class GameScreen extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
         
-        // 상태 변수 초기화
         this.selectionTimer = null;
         this.selectedChoiceId = null;
 
-        // 메서드 바인딩
         this.handleEscKey = this.handleEscKey.bind(this);
+        this.render = this.render.bind(this);
     }
 
     set questions(questions) {
         this._questions = questions;
         this.currentIndex = 0;
-        this.renderCurrentQuestion();
+        this.render();
     }
 
+    // Public method to be called on language change
+    render() {
+        this.renderCurrentQuestion();
+    }
+    
     handleEscKey(e) {
         if (e.key === 'Escape') {
             this.cancelSelection();
@@ -35,8 +41,8 @@ class GameScreen extends HTMLElement {
                 #home-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px var(--accent-glow); }
             </style>
             <div class="game-card">
-                <h1 class="card-title">모든 질문에 답했습니다! 🎉</h1>
-                <button id="home-btn">처음으로</button>
+                <h1 class="card-title">${t('show-results')}! 🎉</h1>
+                <button id="home-btn">${t('play-again')}</button>
             </div>`;
             this.shadowRoot.getElementById('home-btn').addEventListener('click', () => {
                 this.dispatchEvent(new CustomEvent('game-over', { bubbles: true, composed: true }));
@@ -145,15 +151,15 @@ class GameScreen extends HTMLElement {
                 }
             </style>
             <div class="game-card">
-                <h2 class="question-text">${question.question}</h2>
+                <h2 class="question-text">${getTranslated(question.text)}</h2>
                 <div class="choices-wrapper">
                     <button class="choice-button" data-choice-id="0">
-                        <span>${question.options[0]}</span>
+                        <span>${getTranslated(question.options[0].text)}</span>
                         <div class="progress-bar"></div>
                     </button>
                     <div class="vs-divider">VS</div>
                     <button class="choice-button" data-choice-id="1">
-                        <span>${question.options[1]}</span>
+                        <span>${getTranslated(question.options[1].text)}</span>
                         <div class="progress-bar"></div>
                     </button>
                 </div>
@@ -163,7 +169,19 @@ class GameScreen extends HTMLElement {
         this.shadowRoot.querySelectorAll('.choice-button').forEach(button => {
             button.addEventListener('click', (e) => this.handleChoice(e.currentTarget));
         });
+
+        // Restore selection state
+        if (this.selectedChoiceId !== null) {
+            const selectedButton = this.shadowRoot.querySelector(`[data-choice-id="${this.selectedChoiceId}"]`);
+            const otherButtonId = this.selectedChoiceId === '0' ? '1' : '0';
+            const otherButton = this.shadowRoot.querySelector(`[data-choice-id="${otherButtonId}"]`);
+            if (selectedButton && otherButton) {
+                selectedButton.classList.add('selected');
+                otherButton.classList.add('disabled');
+            }
+        }
     }
+
 
     handleChoice(clickedButton) {
         const choiceId = clickedButton.dataset.choiceId;
@@ -188,32 +206,26 @@ class GameScreen extends HTMLElement {
     }
 
     cancelSelection() {
-        // 1. 타이머와 ESC 키 리스너를 즉시 중지하고 제거합니다.
         if (this.selectionTimer) {
             clearTimeout(this.selectionTimer);
             this.selectionTimer = null;
         }
         document.removeEventListener('keydown', this.handleEscKey);
     
-        // 2. 모든 버튼을 순회하며 완벽하게 초기 상태로 되돌립니다.
         this.shadowRoot.querySelectorAll('.choice-button').forEach(btn => {
-            // 모든 시각적 클래스를 제거합니다.
             btn.classList.remove('selected', 'disabled');
             
             const progressBar = btn.querySelector('.progress-bar');
             if (progressBar) {
-                // 애니메이션을 일시적으로 비활성화하여 즉시 리셋되도록 합니다.
                 progressBar.style.transition = 'none';
                 progressBar.style.width = '0%';
                 
-                // 다음 상호작용을 위해, 잠시 후 인라인 transition 스타일을 제거합니다.
                 setTimeout(() => {
                     progressBar.style.removeProperty('transition');
-                }, 20); // 짧은 딜레이
+                }, 20);
             }
         });
     
-        // 3. 마지막으로 내부 상태를 초기화합니다.
         this.selectedChoiceId = null;
     }
 
@@ -224,10 +236,9 @@ class GameScreen extends HTMLElement {
         
         this.currentIndex++;
         
-        // 화면 전환 전 잠시 대기
         setTimeout(() => {
             this.renderCurrentQuestion();
-        }, 300); // 화면 전환 애니메이션 시간과 맞춤
+        }, 300);
     }
 }
 
